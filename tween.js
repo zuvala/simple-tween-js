@@ -1,6 +1,6 @@
 /**
  * Desc.
- * @author Ash Blue
+ * @author Ash Blue, Philipp Lehmann
  * @link http://blueashes.com
  * @todo Include instructions to replace Date.now() with your game loop's time
  * time to make things more accurate
@@ -24,6 +24,7 @@
          * @param {number} d Duration in milliseconds
          */
         linear: function (t, b, c, d) {
+            //c = c-b;
             return c * t / d + b;
         },
 
@@ -171,7 +172,7 @@
     /**
      * Constructor for the tween
      * @param {number} startValue What value does the tween start at
-     * @param {number} distance How far does the tween's value advance from the startValue?
+     * @param {number} endValue What value does the tween end at
      * @param {number} duration Amount of time in milliseconds the tween runs for
      * @param {string} animationType What easing function should be used from the easing library?
      * See _easingLibrary for a list of potential easing equations.
@@ -179,10 +180,11 @@
      * in reverse every time. Repeat will run the original tween from the beginning
      * @returns {self}
      */
-    window.Tween = function (startValue, distance, duration, animationType, loop) {
+    window.Tween = function (startValue, endValue, duration, animationType, loop) {
         this.startTime = Date.now();
         this.startValue = startValue;
-        this.distance = distance;
+        this.endValue = endValue;
+        this.distance = endValue - startValue;
         this.duration = duration;
         this.animationType = animationType;
         this.loop = loop;
@@ -210,8 +212,10 @@
 
         // Run a looped repeat in reverse
         } else {
-            this.startValue = this.startValue + this.distance;
-            this.distance = -this.distance;
+            // Switch start- and endValue
+            this.endValue = [this.startValue, this.startValue = this.endValue][0];
+            // Calculate new distance
+            this.distance = this.endValue - this.startValue;
             this.startTime = Date.now();
             var total = _easingLibrary[this.animationType](Date.now() - this.startTime, this.startValue, this.distance, this.duration);
         }
